@@ -339,6 +339,16 @@ export function getAgentDef(id) {
   return AGENT_DEFS.find((a) => a.id === id) || null;
 }
 
+// Resolve the absolute path of an agent's binary on the current PATH.
+// Used by the chat handler so spawn() gets the same executable that
+// detection reported as available — fixes Windows ENOENT when the bare
+// bin name isn't on the child process's PATH (issue #10).
+export function resolveAgentBin(id) {
+  const def = getAgentDef(id);
+  if (!def?.bin) return null;
+  return resolveOnPath(def.bin);
+}
+
 // Daemon's /api/chat needs to validate the user's model pick against the
 // list we last surfaced to the UI. We keep a per-agent cache of the most
 // recent live list (refreshed every detectAgents() call) and additionally
